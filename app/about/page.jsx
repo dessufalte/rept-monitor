@@ -36,7 +36,7 @@ export default function AboutPage() {
             </div>
             <div className="w-24 h-24 flex items-center justify-center">
               <Image 
-                src="/images/tekom.png"
+                src="/images/images.jpg"
                 alt="Logo Teknik Komputer"
                 width={96}
                 height={96}
@@ -57,8 +57,8 @@ export default function AboutPage() {
       )
     },
     'getting-started': {
-      title: "Mulai Menggunakan Aplikasi",
-      content: "Panduan ini akan memandu Anda melalui langkah-langkah awal untuk menginstal dan menggunakan aplikasi. Mulai dari pendaftaran, login, hingga mengakses dasbor real-time untuk pertama kalinya."
+      title: "Getting Started",
+      content: "lorem ipsum"
     }
   };
 
