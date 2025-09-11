@@ -11,8 +11,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Your App Title",
-  description: "Your App Description",
+  title: "Reptile Monitoring System",
+  description: "Aplikasi Monitoring Reptil",
 };
 
 export default function RootLayout({ children }) {
