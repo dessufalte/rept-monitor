@@ -1,65 +1,88 @@
 "use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState } from "react";
+import Image from "next/image";
 
 export default function AboutPage() {
-  const [activeGuide, setActiveGuide] = useState('about-app');
+  const [activeGuide, setActiveGuide] = useState("about-app");
 
   const guides = {
-    'about-app': {
+    "about-app": {
       title: "Tentang Aplikasi",
       content: (
         <>
           <p className="text-gray-700 mb-6">
-            Aplikasi ini menyediakan antarmuka sederhana dan intuitif untuk memantau dan mengelola data real-time dari perangkat yang terhubung.
+            Aplikasi Monitoring Reptil adalah platform berbasis web untuk
+            memantau suhu dan kelembaban kandang reptil secara real-time. Sistem
+            ini membantu memastikan lingkungan kandang tetap stabil dan aman
+            melalui tampilan data IoT, grafik histori, dan rekap statistik.
           </p>
 
-          <div className="flex flex-wrap justify-center items-center gap-6">
-            <div className="w-24 h-24 flex items-center justify-center">
-              <Image 
-                src="/images/laboratorium1.png"
-                alt="Logo Laboratorium 1"
-                width={96}
-                height={96}
-                className="w-full h-auto "
-              />
-            </div>
-            <div className="w-24 h-24 flex items-center justify-center">
-              <Image 
-                src="/images/laboratorium2.png"
-                alt="Logo Laboratorium 2"
-                width={96}
-                height={96}
-                className="w-full h-auto rounded-full"
-              />
-            </div>
-            <div className="w-24 h-24 flex items-center justify-center">
-              <Image 
-                src="/images/images.jpg"
-                alt="Logo Teknik Komputer"
-                width={96}
-                height={96}
-                className="w-full h-auto rounded-full"
-              />
-            </div>
-            <div className="w-24 h-24 flex items-center justify-center">
-              <Image 
-                src="/images/unand.svg"
-                alt="Logo Universitas Andalas"
-                width={96}
-                height={96}
-                className="w-full h-auto"
-              />
-            </div>
+          <div className="flex flex-wrap justify-center items-center gap-6 mb-10">
+            <Image
+              src="/images/laboratorium1.png"
+              width={96}
+              height={96}
+              alt="Laboratorium 1"
+            />
+            <Image
+              src="/images/laboratorium2.png"
+              width={96}
+              height={96}
+              alt="Laboratorium 2"
+              className="rounded-full"
+            />
+            <Image
+              src="/images/images.jpg"
+              width={96}
+              height={96}
+              alt="Teknik Komputer"
+              className="rounded-full"
+            />
+            <Image
+              src="/images/unand.svg"
+              width={96}
+              height={96}
+              alt="Universitas Andalas"
+            />
           </div>
         </>
-      )
+      ),
     },
-    'getting-started': {
-      title: "Getting Started",
-      content: "lorem ipsum"
-    }
+
+    features: {
+      title: "Fitur Utama",
+      content: (
+        <ul className="list-disc list-inside text-gray-700 space-y-2">
+          <li>Monitoring suhu & kelembaban secara real-time</li>
+          <li>Dukungan multisensor (Sensor 1 – Sensor 4)</li>
+          <li>Penyaringan histori berdasarkan rentang tanggal</li>
+          <li>Grafik interaktif perubahan data</li>
+          <li>Rekap statistik (Rata-rata, Min, Max, Jumlah)</li>
+          <li>Fitur Print untuk mencetak laporan</li>
+          <li>Desain Glass UI modern dan responsif</li>
+        </ul>
+      ),
+    },
+
+
+
+    usage: {
+      title: "Cara Menggunakan",
+      content: (
+        <ol className="list-decimal list-inside text-gray-700 space-y-2">
+          <li>Buka Dashboard untuk melihat data sensor secara real-time.</li>
+          <li>Klik salah satu sensor untuk membuka histori dan grafik.</li>
+          <li>Pilih tanggal untuk memfilter histori pembacaan.</li>
+          <li>Lihat rekap statistik untuk analisis cepat.</li>
+          <li>
+            Gunakan tombol <b>Print</b> untuk mencetak laporan.
+          </li>
+        </ol>
+      ),
+    },
+
+    
   };
 
   const currentGuide = guides[activeGuide];
@@ -72,11 +95,15 @@ export default function AboutPage() {
         <ul className="space-y-2">
           {Object.keys(guides).map((key) => (
             <li key={key}>
-              <a 
+              <a
                 href="#"
                 onClick={() => setActiveGuide(key)}
                 className={`block p-2 rounded-md transition-colors duration-200 
-                  ${activeGuide === key ? 'bg-blue-500 text-white font-semibold' : 'text-gray-600 hover:bg-gray-200'}`}
+                  ${
+                    activeGuide === key
+                      ? "bg-blue-500 text-white font-semibold"
+                      : "text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 {guides[key].title}
               </a>
@@ -88,13 +115,14 @@ export default function AboutPage() {
       {/* Konten Utama */}
       <main className="flex-1 bg-white ml-8 p-8 rounded-lg shadow-md overflow-y-auto">
         <article className="prose max-w-none">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">{currentGuide.title}</h1>
-          {typeof currentGuide.content === 'string' ? (
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            {currentGuide.title}
+          </h1>
+          {typeof currentGuide.content === "string" ? (
             <p className="text-gray-700">{currentGuide.content}</p>
           ) : (
             currentGuide.content
           )}
-       
         </article>
       </main>
     </div>

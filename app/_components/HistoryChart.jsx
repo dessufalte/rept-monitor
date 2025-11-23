@@ -9,6 +9,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  ReferenceArea,
 } from "recharts";
 
 import { db } from "../lib/firebase";
@@ -21,6 +22,13 @@ import {
 } from "firebase/firestore";
 import PrintReport from "./PrintReport";
 import { useReactToPrint } from "react-to-print";
+import { PrinterIcon } from "lucide-react";
+import {
+  FaDatabase,
+  FaTint,
+  FaTemperatureLow,
+  FaArrowsAltV,
+} from "react-icons/fa";
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -29,7 +37,6 @@ const formatDate = (date) => {
   return `${d.getFullYear()}-${month}-${day}`;
 };
 
-const today = formatDate(new Date());
 
 export default function HistoryChart({ sensor = "sensor1", maxPoints = 200 }) {
   const [history, setHistory] = useState([]);
@@ -117,30 +124,69 @@ export default function HistoryChart({ sensor = "sensor1", maxPoints = 200 }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload) return null;
     return (
-      <div className="bg-white p-3 rounded-lg border shadow-md">
+      <div className="p-6 rounded-2xl
+    bg-white/15 backdrop-blur-lg
+    border border-white/30
+    shadow-[0_0_20px_rgba(255,255,255,0.15)]
+    gap-4">
         <p className="font-semibold mb-1">{new Date(label).toLocaleString()}</p>
-        <p className="text-indigo-600">Kelembaban: {payload[0].value}</p>
-        <p className="text-green-600">Suhu: {payload[1].value}</p>
+        <p className="text-blue-600">Kelembaban: {payload[0].value}</p>
+        <p className="text-red-600">Suhu: {payload[1].value}</p>
       </div>
     );
   };
+  const dateRanges = useMemo(() => {
+    if (history.length === 0) return [];
+
+    let ranges = [];
+    let start = history[0].timestamp;
+    let currentDate = new Date(start).toDateString();
+
+    for (let i = 1; i < history.length; i++) {
+      const t = history[i].timestamp;
+      const day = new Date(t).toDateString();
+      if (day !== currentDate) {
+        ranges.push({ start, end: history[i - 1].timestamp });
+        start = t;
+        currentDate = day;
+      }
+    }
+    ranges.push({ start, end: history[history.length - 1].timestamp });
+
+    return ranges;
+  }, [history]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-xl">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
-        <h3 className="text-xl font-semibold text-gray-800">
-          Grafik Historis {sensor.toUpperCase()}
+    <div className="">
+      <div
+        className="
+    mt-5 p-6 rounded-2xl
+    bg-white/15 backdrop-blur-lg
+    border border-white/30
+    shadow-[0_0_20px_rgba(255,255,255,0.15)]
+    flex flex-col md:flex-row justify-between items-center
+    gap-4 mb-4
+  "
+      >
+        <h3 className="text-lg font-semibold text-white drop-shadow">
+          {sensor.toUpperCase()}
         </h3>
-        <div className="flex gap-2">
+
+        <div className="flex gap-3 items-center">
           <input
             type="date"
             max={endDate}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="p-2 border rounded-md"
+            className="
+        px-3 py-2 rounded-lg text-white
+        bg-white/20 border border-white/30
+        backdrop-blur-md outline-none
+        focus:border-blue-400 focus:ring-2 focus:ring-blue-400/40
+      "
           />
 
-          <span className="font-semibold mt-2">to</span>
+          <span className="font-semibold text-white drop-shadow">to</span>
 
           <input
             type="date"
@@ -148,34 +194,93 @@ export default function HistoryChart({ sensor = "sensor1", maxPoints = 200 }) {
             max={today}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="p-2 border rounded-md"
+            className="
+        px-3 py-2 rounded-lg text-white
+        bg-white/20 border border-white/30
+        backdrop-blur-md outline-none
+        focus:border-blue-400 focus:ring-2 focus:ring-blue-400/40
+      "
           />
 
           <button
             onClick={handlePrint}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            className="
+        px-4 py-2 rounded-xl
+        bg-green-500/70 hover:bg-green-500/90
+        text-white font-medium transition
+        backdrop-blur-md border border-white/20
+        shadow-[0_0_15px_rgba(0,255,120,0.3)]
+      "
           >
-            Print / Export PDF
+            <PrinterIcon className="inline-block w-5 h-5" />
           </button>
         </div>
       </div>
 
-      <div className="p-2">
-        <div className="border rounded-lg p-2">
+      <div className="">
+        {recapData && !recapData.message && (
+          <div className="mt-5 p-6 rounded-xl backdrop-blur-md bg-white/10 border border-white/20 shadow-lg space-y-2 mb-4">
+            <h4 className="text-white font-semibold mb-3 text-lg drop-shadow flex items-center gap-2">
+              <FaDatabase className="text-white/80" />
+              Rekap Data — {startDate} — {endDate}
+            </h4>
+
+            <p className="text-white/90 flex items-center gap-2">
+              <FaDatabase /> Jumlah data: {recapData.count}
+            </p>
+
+            <p className="text-white/90 flex items-center gap-2">
+              <FaTint /> Rata-rata kelembaban: {recapData.avgMoisture}
+            </p>
+
+            <p className="text-white/90 flex items-center gap-2">
+              <FaTemperatureLow /> Rata-rata suhu: {recapData.avgTempt}
+            </p>
+
+            <p className="text-white/90 flex items-center gap-2">
+              <FaArrowsAltV /> Min/Max kelembaban: {recapData.minMoisture} /{" "}
+              {recapData.maxMoisture}
+            </p>
+
+            <p className="text-white/90 flex items-center gap-2">
+              <FaArrowsAltV /> Min/Max suhu: {recapData.minTempt} /{" "}
+              {recapData.maxTempt}
+            </p>
+          </div>
+        )}
+        <div
+          className="
+    relative mb-4 p-4 rounded-2xl
+    bg-white/15 
+    backdrop-blur-xl
+    border border-white/20
+    shadow-[0_0_25px_rgba(255,255,255,0.08)]
+  "
+        >
           {loading ? (
-            <p className="text-center h-64 flex items-center justify-center text-gray-500 animate-pulse">
+            <p className="text-center h-64 flex items-center justify-center text-gray-300 animate-pulse">
               Memuat data...
             </p>
           ) : history.length === 0 ? (
-            <p className="text-center h-64 flex items-center justify-center text-gray-500">
+            <p className="text-center h-64 flex items-center justify-center text-gray-300">
               Tidak ada data untuk rentang tanggal {startDate} — {endDate}
             </p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
-                <CartesianGrid stroke="#ddd" />
+                <CartesianGrid stroke="#ffffff20" />{" "}
+                {/* grid juga dibuat soft */}
+                {dateRanges.map((r, idx) => (
+                  <ReferenceArea
+                    key={idx}
+                    x1={r.start}
+                    x2={r.end}
+                    fill="rgba(255,255,255,0.15)"
+                  />
+                ))}
                 <XAxis
                   dataKey="timestamp"
+                  tick={{ fill: "#e5e7eb" }}
                   tickFormatter={(t) =>
                     new Date(t).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -183,78 +288,59 @@ export default function HistoryChart({ sensor = "sensor1", maxPoints = 200 }) {
                     })
                   }
                 />
-                <YAxis />
+                <YAxis tick={{ fill: "#e5e7eb" }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Line
-                  type="monotone"
-                  dataKey="moisture"
-                  stroke="#6366f1"
-                  name="Kelembaban"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="tempt"
-                  stroke="#10b981"
-                  name="Suhu"
-                />
+                <Line type="monotone" dataKey="moisture" stroke="#38bdf8" />
+                <Line type="monotone" dataKey="tempt" stroke="#f87171" />
               </LineChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        {/* Tabel Data */}
-        {/* Tabel Data */}
-        {history.length > 0 && (
-          <table className="w-full mt-4 border text-sm">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="border p-2">Tanggal</th>
-                <th className="border p-2">Waktu</th>
-                <th className="border p-2">Kelembaban</th>
-                <th className="border p-2">Suhu</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((d) => {
-                const dateObj = new Date(d.timestamp);
-                const date = dateObj.toLocaleDateString(); // 23/11/2025
-                const time = dateObj.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                });
+        <div className="">
+          {history.length > 0 && (
+            <table className="w-full mt-4 text-sm backdrop-blur-md bg-white/30 border border-white/20 rounded-xl overflow-hidden shadow-lg">
+              <thead>
+                <tr className="bg-white/40 text-gray-800 font-semibold">
+                  <th className="p-3">Tanggal</th>
+                  <th className="p-3">Waktu</th>
+                  <th className="p-3">Kelembaban</th>
+                  <th className="p-3">Suhu</th>
+                </tr>
+              </thead>
 
-                return (
-                  <tr key={d.id}>
-                    <td className="border p-2">{date}</td>
-                    <td className="border p-2">{time}</td>
-                    <td className="border p-2">{d.moisture}</td>
-                    <td className="border p-2">{d.tempt}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+              <tbody>
+                {history.map((d, idx) => {
+                  const dateObj = new Date(d.timestamp);
+                  const date = dateObj.toLocaleDateString();
+                  const time = dateObj.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  });
 
-        {recapData && !recapData.message && (
-          <div className="mt-5 p-4 bg-indigo-50 rounded border">
-            <h4 className="text-indigo-700 font-semibold mb-2">
-              Rekap Data — {startDate} — {endDate}
-            </h4>
-
-            <p>Jumlah data: {recapData.count}</p>
-            <p>Rata-rata kelembaban: {recapData.avgMoisture}</p>
-            <p>Rata-rata suhu: {recapData.avgTempt}</p>
-            <p>
-              Min/Max kelembaban: {recapData.minMoisture} /{" "}
-              {recapData.maxMoisture}
-            </p>
-            <p>
-              Min/Max suhu: {recapData.minTempt} / {recapData.maxTempt}
-            </p>
-          </div>
-        )}
+                  return (
+                    <tr
+                      key={d.id}
+                      className={`${
+                        idx % 2 === 0 ? "bg-white/10" : "bg-white/20"
+                      } hover:bg-white/40 transition duration-200`}
+                    >
+                      <td className="p-3 border-b border-white/10">{date}</td>
+                      <td className="p-3 border-b border-white/10">{time}</td>
+                      <td className="p-3 border-b border-white/10 font-medium text-gray-900">
+                        {d.moisture}
+                      </td>
+                      <td className="p-3 border-b border-white/10 font-medium text-gray-900">
+                        {d.tempt}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       <div className="hidden print:block">

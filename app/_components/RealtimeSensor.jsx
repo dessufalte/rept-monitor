@@ -6,7 +6,13 @@ import { IoClose } from "react-icons/io5";
 import HistoryChart from "./HistoryChart";
 
 import { db } from "../lib/firebase";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 
 export default function RealtimeComponent() {
   const [sensorData, setSensorData] = useState([]);
@@ -71,21 +77,33 @@ export default function RealtimeComponent() {
             {sensorData.map((sensor) => (
               <div
                 key={sensor.id}
-                className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition"
+                className="
+    cursor-pointer
+    rounded-2xl
+    p-4
+    bg-white/15
+    backdrop-blur-md
+    border border-white/20
+    shadow-[0_0_15px_rgb(255,255,255,0.15)]
+    transition
+    hover:shadow-[0_0_25px_rgb(255,255,255,0.35)]
+    hover:bg-white/20
+    hover:-translate-y-1
+  "
                 onClick={() => setSelectedSensor(sensor.id)}
               >
-                <h4 className="font-bold text-gray-800 mb-2">
+                <h4 className="font-bold text-white drop-shadow mb-2 tracking-wide">
                   {sensor.id.toUpperCase()}
                 </h4>
 
-                <div className="flex justify-between text-blue-500">
-                  <WiHumidity className="text-xl" />
-                  <span>{sensor.moisture || 0}%</span>
+                <div className="flex justify-between items-center text-blue-300">
+                  <WiHumidity className="text-2xl drop-shadow" />
+                  <span className="font-semibold">{sensor.moisture || 0}%</span>
                 </div>
 
-                <div className="flex justify-between text-red-500 mt-1">
-                  <WiThermometer className="text-xl" />
-                  <span>{sensor.tempt || 0}°C</span>
+                <div className="flex justify-between items-center text-red-300 mt-1">
+                  <WiThermometer className="text-2xl drop-shadow" />
+                  <span className="font-semibold">{sensor.tempt || 0}°C</span>
                 </div>
               </div>
             ))}
@@ -93,28 +111,19 @@ export default function RealtimeComponent() {
 
           {/* --- HISTORY CHART --- */}
           {selectedSensor && (
-            <div className="bg-white rounded-lg shadow p-4 relative">
+            <div className="">
               <button
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                 onClick={() => setSelectedSensor(null)}
               >
                 <IoClose size={20} />
               </button>
-              <h4 className="font-semibold mb-2 text-blue-400">
-                {selectedSensor.toUpperCase()} History
-              </h4>
+
               <HistoryChart sensor={selectedSensor} />
             </div>
           )}
         </>
       )}
-
-      <footer className="w-full bottom-0 right-0 left-0 fixed text-center py-4 mt-8">
-        <h1 className="text-xl font-bold text-gray-800">
-          Sistem Monitoring Reptil
-        </h1>
-        <p className="text-sm text-gray-500">Kebun Binatang Kinantan</p>
-      </footer>
     </div>
   );
 }
