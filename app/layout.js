@@ -13,6 +13,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata = {
   title: "Reptile Monitoring System",
   description: "Aplikasi Monitoring Reptil",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

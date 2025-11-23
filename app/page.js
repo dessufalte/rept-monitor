@@ -6,6 +6,7 @@ import RealtimeComponent from "./_components/RealtimeSensor";
 export default function Dashboard() {
   return (
     <div className="font-sans">
+      <link rel="icon" href="/favicon.png" />
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center"
         style={{ backgroundImage: "url('/bg.png')" }}
